@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.msg,this.scannerWidget}) : super(key: key);
-  final String msg;
+  final Widget msg;
   final Widget scannerWidget;
 
   @override
@@ -19,6 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Center(
           child: widget.scannerWidget,
         ),
+        floatingActionButton: FloatingActionButton(onPressed: (){}),
         bottomNavigationBar: Container(
           child: Text('${widget.msg}',style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),),
           color: Colors.deepOrange,

@@ -8,9 +8,11 @@ import 'package:http/http.dart' as http;
 
 Future<List<CovidData>> fetchCovidList(http.Client client) async {
   final response =
-      await client.get('https://jsonplaceholder.typicode.com/photos');
+      await client.get('https://infinite-tor-43156.herokuapp.com/cov');
 
   // Use the compute function to run parsePhotos in a separate isolate.
+  // print('${response.body} resp');
+  
   return compute(parseCovid, response.body);
 
 }
@@ -19,8 +21,10 @@ Future<List<CovidData>> fetchCovidList(http.Client client) async {
 
 
 
-List<CovidData> parseCovid(String responseBody){
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-  return parsed.map<CovidData>((json) => CovidData.fromJson(json)).toList();
+  parseCovid(String responseBody){
+  final parsed = BaseJson.fromJson(jsonDecode(responseBody));
+  // final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+  return  parsed;
+  // return parsed.map<CovidData>((json) => CovidData.fromJson(json)).toList();
 }
 
