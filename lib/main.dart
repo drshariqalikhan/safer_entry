@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'covidPlace.dart';
 import 'fecthdata.dart';
 import 'homepage.dart';
 
 
-List d ;
+List<CovidData> d ;
 void main()async {
   d = await fetchCovidList(http.Client());
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-   int z  = d.length;
+   var z  = d[0].lat;
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
