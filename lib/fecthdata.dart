@@ -21,7 +21,7 @@ Future<List<CovidData>> fetchCovidList(http.Client client) async {
 
 
 
-  parseCovid(String responseBody){
+  BaseJson parseCovid(String responseBody){
   final parsed = BaseJson.fromJson(jsonDecode(responseBody));
   // final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
   return  parsed;
