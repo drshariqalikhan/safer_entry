@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 // import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<CovidData>> fetchCovidList(http.Client client) async {
+Future <BaseJson> fetchCovidList(http.Client client) async {
   final response =
       await client.get('https://infinite-tor-43156.herokuapp.com/cov');
 
@@ -21,7 +21,7 @@ Future<List<CovidData>> fetchCovidList(http.Client client) async {
 
 
 
-  BaseJson parseCovid(String responseBody){
+  BaseJson parseCovid (String responseBody){
   final parsed = BaseJson.fromJson(jsonDecode(responseBody));
   // final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
   return  parsed;

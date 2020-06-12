@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:safer_entry/qr_scanner.dart';
 import 'covidPlace.dart';
 import 'fecthdata.dart';
 import 'homepage.dart';
@@ -59,7 +60,10 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      bottomNavigationBar: FutureBuilder<List<CovidData>>(
+      body: Container(
+        child: QrApp(),
+      ),
+      bottomNavigationBar: FutureBuilder<BaseJson>(
         future: fetchCovidList(http.Client()),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
@@ -67,7 +71,7 @@ class HomePage extends StatelessWidget {
 
           return snapshot.hasData
               ? PhotosList(covids: snapshot.data)
-              : Center(child: CircularProgressIndicator());
+              : CircularProgressIndicator();
         },
       ),
     );
@@ -81,16 +85,17 @@ class PhotosList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-      itemCount: covids.data.length,
-      itemBuilder: (context, index) {
-        print(covids.data[index].place.toString());
-        return Text(covids.data[index].place??'load..');
-      },
-    );
+    return Container(child: Text(covids.timeUpdated.toString(),style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),),color: Colors.amber,);
+    // return GridView.builder(
+    //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //     crossAxisCount: 2,
+    //   ),
+    //   itemCount: covids.data.length,
+    //   itemBuilder: (context, index) {
+    //     print(covids.data[index].place.toString());
+    //     return Text(covids.data[index].place??'load..');
+    //   },
+    // );
   }
 }
 
