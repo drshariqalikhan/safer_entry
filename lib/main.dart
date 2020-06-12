@@ -4,6 +4,8 @@ import 'package:safer_entry/qr_scanner.dart';
 import 'covidPlace.dart';
 import 'fecthdata.dart';
 import 'homepage.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 
 // List<CovidData> d ;
@@ -98,7 +100,6 @@ class PhotosList extends StatelessWidget {
     // );
   }
 }
-
 
 
 

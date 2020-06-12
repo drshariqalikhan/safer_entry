@@ -32,6 +32,7 @@ dependencies:
   http: ^0.12.1
   flutter_barcode_scanner: ^1.0.1
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
