@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:webview_flutter/webview_flutter.dart';
 // import 'package:safer_entry/mtechQr.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
       // ),
       theme: ThemeData.dark(),
       home:MyHomePage(title:'test'),
-
+      // home:testPage(),
 
 
       
@@ -49,6 +50,19 @@ class MyApp extends StatelessWidget {
 
 
 
+class TestPage extends StatelessWidget {
+  // This widget is the root of your application.
+
+
+  
+  @override
+  Widget build(BuildContext context) {
+  //  var z  = d[0].lat;
+    return Container(
+      color: Colors.amber,
+    );
+  }
+}
 
 
 
@@ -126,17 +140,28 @@ Future <String> scanQR()async{
           }
         )
       ),
-      bottomNavigationBar: FutureBuilder<BaseJson>(
-        future: fetchCovidList(http.Client()),
+      bottomNavigationBar: FutureBuilder<double>(
+        future: currenttoTarget(),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
 
-
+          print('Pos: ${snapshot.data.toString()}');
           return snapshot.hasData
-              ? PhotosList(covids: snapshot.data)
+              ? Text(snapshot.data.toString())
               : CircularProgressIndicator();
         },
       ),
+      // bottomNavigationBar: FutureBuilder<BaseJson>(
+      //   future: fetchCovidList(http.Client()),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.hasError) print(snapshot.error);
+
+
+      //     return snapshot.hasData
+      //         ? PhotosList(covids: snapshot.data)
+      //         : CircularProgressIndicator();
+      //   },
+      // ),
     ),
       );
   }
