@@ -32,7 +32,7 @@
 class BaseJson {
   List<CovidData> data;
   int num;
-  String timeUpdated;
+  var timeUpdated;
 
   BaseJson({this.data, this.num, this.timeUpdated});
 
