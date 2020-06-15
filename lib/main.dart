@@ -50,8 +50,8 @@ class MyApp extends StatelessWidget {
       //   visualDensity: VisualDensity.adaptivePlatformDensity,
       // ),
       theme: ThemeData.dark(),
-      // home:MyHomePage(title:'test'),
-      home:TestPage(),
+      home:MyHomePage(title:'test'),
+      // home:TestPage(),
 
 
       
@@ -128,28 +128,28 @@ Future <String> scanQR()async{
           }
         )
       ),
-      // bottomNavigationBar: FutureBuilder<double>(
-      //   future: currenttoTarget(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasError) print(snapshot.error);
-
-      //     print('Pos: ${snapshot.data.toString()}');
-      //     return snapshot.hasData
-      //         ? Text(snapshot.data.toString())
-      //         : CircularProgressIndicator();
-      //   },
-      // ),
-      bottomNavigationBar: FutureBuilder<BaseJson>(
-        future: fetchCovidList(http.Client()),
+      bottomNavigationBar: FutureBuilder<String>(
+        future: covidScanner(),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
 
-          print('Num ${snapshot.data}');
+          print('Pos: ${snapshot.data.toString()}');
           return snapshot.hasData
-              ? PhotosList(covids: snapshot.data)
+              ? Text(snapshot.data.toString())
               : CircularProgressIndicator();
         },
       ),
+      // bottomNavigationBar: FutureBuilder<BaseJson>(
+      //   future: fetchCovidList(http.Client()),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.hasError) print(snapshot.error);
+
+      //     print('Num ${snapshot.data}');
+      //     return snapshot.hasData
+      //         ? PhotosList(covids: snapshot.data)
+      //         : CircularProgressIndicator();
+      //   },
+      // ),
     ),
       );
   }

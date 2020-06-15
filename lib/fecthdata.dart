@@ -40,11 +40,11 @@ Future <Position> getCurrentLocation()async{
 }
 
 // get distance between two Positions
-Future <double> distanceBetween(Position positionCurrent, List positionTarget)async{
+Future <double> distanceBetween({Position positionCurrent, Position positionTarget})async{
   double currentLat= positionCurrent.latitude;
   double currentLon=  positionCurrent.longitude;
-  double targetLat = positionTarget[0];
-  double targetLon = positionTarget[1];
+  double targetLat = positionTarget.latitude;
+  double targetLon = positionTarget.longitude;
 
   double distanceInMeters = await Geolocator().distanceBetween(currentLat,currentLon, targetLat, targetLon);
   return distanceInMeters;
@@ -109,7 +109,7 @@ Future<String> covidScanner()async{
     currentPosition = await getCurrentLocation();
   
     //iterate through latestCovidList and make a nearCovidPlacesList
-    nearCovidPlacesList = await makeNearCovidPlacesList(latestCovidList,currentPosition);
+    nearCovidPlacesList = await makeNearCovidPlacesList(currentPosition:currentPosition , latestCovidList:  latestCovidList);
     
     //statement
     if(nearCovidPlacesList.length>0){
@@ -117,7 +117,7 @@ Future<String> covidScanner()async{
     }else{
       finalStatement = 'Low Covid Risk Area';
     }  
-      
+       
     return finalStatement;  
         
         
@@ -129,12 +129,22 @@ Future<String> covidScanner()async{
 
 
 
-  Future<List> makeNearCovidPlacesList(List<CovidData> latestCovidList, Position currentPosition)async {
-    List results;
-    for (CovidData covidPlace in latestCovidList){
-
-    }
-
+  Future<List<CovidData>> makeNearCovidPlacesList({List<CovidData> latestCovidList, Position currentPosition})async {
+    List<CovidData> results=[];
+    latestCovidList.asMap().forEach((index, covidplace)async {
+      // print('ind :$index  obj :${covidplace.place}');
+      // if(covidplace.lat >2){
+      //   results.add(covidplace);
+      // }
+     //add nearby places to results
+      // position of place
+      Position targetpos = Position(longitude: covidplace.lon,latitude: covidplace.lat);
+      double distance = await distanceBetween(positionCurrent: currentPosition, positionTarget: targetpos);
+      //check and add
+      if(distance<1001){
+        results.add(covidplace);
+      }
+    });
 
     return results;
 

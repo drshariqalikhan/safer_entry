@@ -27,7 +27,7 @@ class _TestPageState extends State<TestPage> {
       date: '2 jan',
       time: '7pm',
       place: 'abc',
-      lat: 10.1,
+      lat: 1.1,
       lon: 12.3
     ),
      new CovidData(
@@ -73,8 +73,13 @@ class _TestPageState extends State<TestPage> {
           // outlist = await getStoreCovidList('tlc');
 
           // print(outlist[0].date);
-          var df = await getStoredUpdatedTime();
-          print(df);
+          // var df = await getStoredUpdatedTime();
+          // print(df);
+
+          outlist = await  makeNearCovidPlacesList(currentPosition: null,latestCovidList: testCovList);
+
+          print(outlist[1].place);
+          print(outlist.length.toString());
 
         }),
     );
