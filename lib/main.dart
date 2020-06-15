@@ -128,14 +128,14 @@ Future <String> scanQR()async{
           }
         )
       ),
-      bottomNavigationBar: FutureBuilder<String>(
+      bottomNavigationBar: FutureBuilder(
         future: covidScanner(),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
 
-          print('Pos: ${snapshot.data.toString()}');
+          print('Pos: ${snapshot.data['Statment']}');
           return snapshot.hasData
-              ? Text(snapshot.data.toString())
+              ? Text(snapshot.data['NearbyHotPlaces'][0].place)
               : CircularProgressIndicator();
         },
       ),

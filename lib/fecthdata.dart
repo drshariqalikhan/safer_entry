@@ -52,15 +52,16 @@ Future <double> distanceBetween({Position positionCurrent, Position positionTarg
 
 
 
-Future<String> covidScanner()async{
+Future covidScanner()async{
   
   bool isDataCurrent;
   String finalStatement;
   List<CovidData> latestCovidList;
   double latestUpdateTime;
   Position currentPosition;
-  List nearCovidPlacesList;
+  List<CovidData> nearCovidPlacesList;
   BaseJson apiData;
+  List<double> distlist;
   
 //Run Once
   if(await getStoredUpdatedTime()==null){
@@ -106,20 +107,29 @@ Future<String> covidScanner()async{
     }
     
     //get current location
-    currentPosition = await getCurrentLocation();
+    // currentPosition = await getCurrentLocation();
+    currentPosition = Position(latitude:1.265066 ,longitude:103.821034 );
   
     //iterate through latestCovidList and make a nearCovidPlacesList
-    nearCovidPlacesList = await makeNearCovidPlacesList(currentPosition:currentPosition , latestCovidList:  latestCovidList);
+    List out = await makeNearCovidPlacesList(currentPosition:currentPosition , latestCovidList:  latestCovidList);
     
-    //statement
+     nearCovidPlacesList = out[0];
+     distlist = out[1];
+
+    // statement
     if(nearCovidPlacesList.length>0){
       finalStatement = 'ALERT: You are in a Covid Risk Area , ${nearCovidPlacesList.length} nearby covid location(s)';
     }else{
-      finalStatement = 'Low Covid Risk Area';
+      finalStatement = 'Low Covid Risk Area ${nearCovidPlacesList.length}';
     }  
-       
-    return finalStatement;  
         
+    // finalStatement;  
+    return{
+      'NearbyHotPlaces':nearCovidPlacesList,
+      'Statment':finalStatement,
+      'distances':distlist
+      
+    };
         
      }
 
@@ -129,25 +139,22 @@ Future<String> covidScanner()async{
 
 
 
-  Future<List<CovidData>> makeNearCovidPlacesList({List<CovidData> latestCovidList, Position currentPosition})async {
+   Future makeNearCovidPlacesList({List<CovidData> latestCovidList, Position currentPosition})async{
     List<CovidData> results=[];
-    latestCovidList.asMap().forEach((index, covidplace)async {
-      // print('ind :$index  obj :${covidplace.place}');
-      // if(covidplace.lat >2){
-      //   results.add(covidplace);
-      // }
-     //add nearby places to results
-      // position of place
+    List<double> covidist = [];
+    
+  for (CovidData covidplace in latestCovidList){
+    //   // position of place
       Position targetpos = Position(longitude: covidplace.lon,latitude: covidplace.lat);
       double distance = await distanceBetween(positionCurrent: currentPosition, positionTarget: targetpos);
-      //check and add
+        //check and add
       if(distance<1001){
+        print('adding..${covidplace.place}');
         results.add(covidplace);
+        covidist.add(distance);
       }
-    });
-
-    return results;
-
+  }
+   return [results,covidist];
 }
 
 
