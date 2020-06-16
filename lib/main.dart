@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:safer_entry/testPage.dart';
@@ -100,7 +101,59 @@ Future <String> scanQR()async{
   return out;
    }
 
+// ScanResult scanResult;
 
+//   final _flashOnController = TextEditingController(text: "Flash on");
+//   final _flashOffController = TextEditingController(text: "Flash off");
+//   final _cancelController = TextEditingController(text: "Cancel");
+
+//   var _aspectTolerance = 0.00;
+//   // var _numberOfCameras = 0;
+//   var _selectedCamera = -1;
+//   var _useAutoFocus = true;
+//   var _autoEnableFlash = false;
+
+
+//  Future scan() async {
+//     try {
+//       // var options = ScanOptions(
+//       //   strings: {
+//       //     "cancel": _cancelController.text,
+//       //     "flash_on": _flashOnController.text,
+//       //     "flash_off": _flashOffController.text,
+//       //   },
+//       //   restrictFormat: selectedFormats,
+//       //   useCamera: _selectedCamera,
+//       //   autoEnableFlash: _autoEnableFlash,
+//       //   android: AndroidOptions(
+//       //     aspectTolerance: _aspectTolerance,
+//       //     useAutoFocus: _useAutoFocus,
+//       //   ),
+//       // );
+
+//       var result = await BarcodeScanner.scan();
+//       // var result = await BarcodeScanner.scan(options: options);
+
+//       setState(() => scanResult = result);
+//     } on PlatformException catch (e) {
+//       // var result = ScanResult(
+//       //   type: ResultType.Error,
+//       //   format: BarcodeFormat.unknown,
+//       // );
+
+//       // if (e.code == BarcodeScanner.cameraAccessDenied) {
+//       //   setState(() {
+//       //     result.rawContent = 'The user did not grant the camera permission!';
+//       //   });
+//       // } else {
+//       //   result.rawContent = 'Unknown error: $e';
+//       }
+//       setState(() {
+//         scanResult = result;
+//       });
+//     }
+//   }
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -115,19 +168,31 @@ Future <String> scanQR()async{
           builder: (ctx,snapsh){
             if (snapsh.hasError) print(snapsh.error);
 
+            // return snapsh.hasData?Container(
+            //   child: Text(snapsh.data),
+            // ):FlatButton(child: Text('data'),onPressed: () {
+            //   setState(() {
+                
+            //   });
+            // },);
+
+            
+
+
             return snapsh.hasData?Container(
               child:(snapsh.data.startsWith('http'))?WebView(
                 initialUrl: '${snapsh.data}',
                 javascriptMode: JavascriptMode.unrestricted ,
                 onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);} ,
-              ):Center(child: FlatButton(onPressed: (){setState((){});}, child: Text('Tap to try again'))),
+              ):Center(child: FlatButton(onPressed: ()async{ await scanQR();}, child: Text('Tap to try again'))),
                 )
               :CircularProgressIndicator();
 
           }
         )
       ),
+    
       bottomNavigationBar: FutureBuilder(
         future: covidScanner(),
         builder: (context, snapshot) {
@@ -152,6 +217,11 @@ Future <String> scanQR()async{
               : CircularProgressIndicator();
         },
       ),
+
+
+
+
+
       // bottomNavigationBar: FutureBuilder<BaseJson>(
       //   future: fetchCovidList(http.Client()),
       //   builder: (context, snapshot) {
@@ -163,6 +233,12 @@ Future <String> scanQR()async{
       //         : CircularProgressIndicator();
       //   },
       // ),
+
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        setState(() {
+          
+        });
+      },),
     ),
       );
   }

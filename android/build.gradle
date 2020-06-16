@@ -4,9 +4,10 @@ buildscript {
         google()
         jcenter()
     }
-
+    // apply plugin: 'kotlin-android'
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
+        // implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
