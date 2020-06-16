@@ -116,12 +116,12 @@ Future <String> scanQR()async{
             if (snapsh.hasError) print(snapsh.error);
 
             return snapsh.hasData?Container(
-              child:WebView(
+              child:(snapsh.data.startsWith('http'))?WebView(
                 initialUrl: '${snapsh.data}',
                 javascriptMode: JavascriptMode.unrestricted ,
                 onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);} ,
-              )
+              ):Center(child: FlatButton(onPressed: (){setState((){});}, child: Text('Tap to try again'))),
                 )
               :CircularProgressIndicator();
 
@@ -133,9 +133,22 @@ Future <String> scanQR()async{
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
 
-          print('Pos: ${snapshot.data['Statment']}');
+          // print('Pos: ${snapshot.data['Statment']}');
           return snapshot.hasData
-              ? Text(snapshot.data['NearbyHotPlaces'][0].place)
+              ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
+                if (snapshot.data['NearbyHotPlaces'].length > 0){
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                    return AlertDialog(
+                        title: Text('Nearby Places recently visited by covid cases'),
+                        content: dialogContent(snapshot.data),
+                    );
+                    }
+                  );
+              }
+              }
+              ,)
               : CircularProgressIndicator();
         },
       ),
@@ -154,6 +167,30 @@ Future <String> scanQR()async{
       );
   }
 }
+
+
+Widget dialogContent(dynamic snapData) {
+   
+    List<CovidData> nearbyPlacesList=snapData['NearbyHotPlaces'];
+    List<double> nearbyDistances = snapData['distances'];
+    return Container(
+      height: 300.0, // Change as per your requirement
+      width: 300.0, // Change as per your requirement
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: nearbyPlacesList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(nearbyPlacesList[index].place),
+            trailing: Text('${nearbyDistances[index].floor()}m'),
+            leading: Text(nearbyPlacesList[index].date)
+          );
+        },
+      ),
+    );
+  }
+
+
 
 class PhotosList extends StatelessWidget {
   final covids;

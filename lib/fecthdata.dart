@@ -108,7 +108,7 @@ Future covidScanner()async{
     
     //get current location
     // currentPosition = await getCurrentLocation();
-    currentPosition = Position(latitude:1.265066 ,longitude:103.821034 );
+    currentPosition = Position(latitude:1.311474 ,longitude:103.856145 );
   
     //iterate through latestCovidList and make a nearCovidPlacesList
     List out = await makeNearCovidPlacesList(currentPosition:currentPosition , latestCovidList:  latestCovidList);
