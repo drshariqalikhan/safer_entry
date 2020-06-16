@@ -40,6 +40,13 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+
+
+  SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    
   //  var z  = d[0].lat;
     return MaterialApp(
       title: 'Flutter Demo',
@@ -101,66 +108,15 @@ Future <String> scanQR()async{
   return out;
    }
 
-// ScanResult scanResult;
-
-//   final _flashOnController = TextEditingController(text: "Flash on");
-//   final _flashOffController = TextEditingController(text: "Flash off");
-//   final _cancelController = TextEditingController(text: "Cancel");
-
-//   var _aspectTolerance = 0.00;
-//   // var _numberOfCameras = 0;
-//   var _selectedCamera = -1;
-//   var _useAutoFocus = true;
-//   var _autoEnableFlash = false;
-
-
-//  Future scan() async {
-//     try {
-//       // var options = ScanOptions(
-//       //   strings: {
-//       //     "cancel": _cancelController.text,
-//       //     "flash_on": _flashOnController.text,
-//       //     "flash_off": _flashOffController.text,
-//       //   },
-//       //   restrictFormat: selectedFormats,
-//       //   useCamera: _selectedCamera,
-//       //   autoEnableFlash: _autoEnableFlash,
-//       //   android: AndroidOptions(
-//       //     aspectTolerance: _aspectTolerance,
-//       //     useAutoFocus: _useAutoFocus,
-//       //   ),
-//       // );
-
-//       var result = await BarcodeScanner.scan();
-//       // var result = await BarcodeScanner.scan(options: options);
-
-//       setState(() => scanResult = result);
-//     } on PlatformException catch (e) {
-//       // var result = ScanResult(
-//       //   type: ResultType.Error,
-//       //   format: BarcodeFormat.unknown,
-//       // );
-
-//       // if (e.code == BarcodeScanner.cameraAccessDenied) {
-//       //   setState(() {
-//       //     result.rawContent = 'The user did not grant the camera permission!';
-//       //   });
-//       // } else {
-//       //   result.rawContent = 'Unknown error: $e';
-//       }
-//       setState(() {
-//         scanResult = result;
-//       });
-//     }
-//   }
-// }
-
+bool showButton = true;
   @override
   Widget build(BuildContext context) {
     return   Container(
         child: Scaffold(
-      appBar: AppBar(
-        title: Text('${((DateTime.now().toUtc()).millisecondsSinceEpoch)/1000}')
+      appBar: AppBar( 
+        title: RaisedButton(child: Icon(Icons.whatshot),onPressed:(){setState(() {
+          
+        });}),
       ),
       body: Container(
         child: FutureBuilder<String>(
@@ -177,7 +133,7 @@ Future <String> scanQR()async{
             // },);
 
             
-
+            // if(snapsh.data.startsWith('http')){showButton = false;}else{showButton = true;}
 
             return snapsh.hasData?Container(
               child:(snapsh.data.startsWith('http'))?WebView(
@@ -185,7 +141,7 @@ Future <String> scanQR()async{
                 javascriptMode: JavascriptMode.unrestricted ,
                 onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);} ,
-              ):Center(child: FlatButton(onPressed: ()async{ await scanQR();}, child: Text('Tap to try again'))),
+              ):Center(child: Text('Failed to scan')),
                 )
               :CircularProgressIndicator();
 
@@ -234,11 +190,11 @@ Future <String> scanQR()async{
       //   },
       // ),
 
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        setState(() {
+      // floatingActionButton: FloatingActionButton(onPressed: () {
+      //   setState(() {
           
-        });
-      },),
+      //   });
+      // },),
     ),
       );
   }
