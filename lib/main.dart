@@ -116,124 +116,147 @@ bool showButton = true;
     return   Container(
         child: Scaffold(
       appBar: AppBar( 
-        title: RaisedButton(child: Icon(Icons.whatshot),onPressed:(){setState(() {
+        leading: IconButton(icon: Icon(Icons.autorenew),onPressed:(){setState(() {
           
         });}),
-      ),
-      body: WillPopScope(
-        onWillPop: ()async{ return false;},
-                child: Container(
-                  child: FutureBuilder<String>(
-                    future:scanQR(),
-                    builder: (ctx,snapsh){
-                      if (snapsh.hasError) print(snapsh.error);
-        
-                      
-        
-                      return snapsh.hasData?Container(
-                        child:(snapsh.data.startsWith('http'))?WebView(
-                          initialUrl: '${snapsh.data}',
-                          javascriptMode: JavascriptMode.unrestricted ,
-                          onWebViewCreated: (WebViewController webViewController) {
-                      _controller.complete(webViewController);} ,
-                        ):Center(child: Text('Failed to scan')),
-                          )
-                        :CircularProgressIndicator();
-        
-                    }
-                 )
-                ),
-              ),
-          
-        
-        
-              // body: Container(
-              //   child: FutureBuilder<String>(
-              //     future:scanQR(),
-              //     builder: (ctx,snapsh){
-              //       if (snapsh.hasError) print(snapsh.error);
-        
+        flexibleSpace: IconButton(icon: Icon(Icons.info), onPressed: ()async{
+          await showDialog(
+            context: context,
+            builder: (_)=>ImageDialog()
+                        );
+                    }),
+                  ),
+                  body: WillPopScope(
+                    onWillPop: ()async{ return false;},
+                            child: Container(
+                              child: FutureBuilder<String>(
+                                future:scanQR(),
+                                builder: (ctx,snapsh){
+                                  if (snapsh.hasError) print(snapsh.error);
                     
-        
-              //       return snapsh.hasData?Container(
-              //         child:(snapsh.data.startsWith('http'))?WebView(
-              //           initialUrl: '${snapsh.data}',
-              //           javascriptMode: JavascriptMode.unrestricted ,
-              //           onWebViewCreated: (WebViewController webViewController) {
-              //       _controller.complete(webViewController);} ,
-              //         ):Center(child: Text('Failed to scan')),
-              //           )
-              //         :CircularProgressIndicator();
-        
-              //     }
-              //   )
-              // ),
-            
-              bottomNavigationBar: FutureBuilder(
-                future: covidScanner(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) print(snapshot.error);
-        
-                  // print('Pos: ${snapshot.data['Statment']}');
-                  return snapshot.hasData
-                      ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
-                        if (snapshot.data['NearbyHotPlaces'].length > 0){
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                            return AlertDialog(
-                                title: Text('Nearby Places recently visited by covid cases'),
-                                content: dialogContent(snapshot.data),
-                            );
-                            }
+                                  
+                    
+                                  return snapsh.hasData?Container(
+                                    child:(snapsh.data.startsWith('http'))?WebView(
+                                      initialUrl: '${snapsh.data}',
+                                      javascriptMode: JavascriptMode.unrestricted ,
+                                      onWebViewCreated: (WebViewController webViewController) {
+                                  _controller.complete(webViewController);} ,
+                                    ):Center(child: Text('Failed to scan')),
+                                      )
+                                    :CircularProgressIndicator();
+                    
+                                }
+                             )
+                            ),
+                          ),
+                      
+                    
+                    
+                          // body: Container(
+                          //   child: FutureBuilder<String>(
+                          //     future:scanQR(),
+                          //     builder: (ctx,snapsh){
+                          //       if (snapsh.hasError) print(snapsh.error);
+                    
+                                
+                    
+                          //       return snapsh.hasData?Container(
+                          //         child:(snapsh.data.startsWith('http'))?WebView(
+                          //           initialUrl: '${snapsh.data}',
+                          //           javascriptMode: JavascriptMode.unrestricted ,
+                          //           onWebViewCreated: (WebViewController webViewController) {
+                          //       _controller.complete(webViewController);} ,
+                          //         ):Center(child: Text('Failed to scan')),
+                          //           )
+                          //         :CircularProgressIndicator();
+                    
+                          //     }
+                          //   )
+                          // ),
+                        
+                          bottomNavigationBar: FutureBuilder(
+                            future: covidScanner(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) print(snapshot.error);
+                    
+                              // print('Pos: ${snapshot.data['Statment']}');
+                              return snapshot.hasData
+                                  ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
+                                    if (snapshot.data['NearbyHotPlaces'].length > 0){
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                        return AlertDialog(
+                                            title: Text('Nearby Places recently visited by covid cases'),
+                                            content: dialogContent(snapshot.data),
+                                        );
+                                        }
+                                      );
+                                  }
+                                  }
+                                  ,)
+                                  : CircularProgressIndicator();
+                            },
+                          ),
+                    
+                    
+                    
+                    
+                    
+                          // bottomNavigationBar: FutureBuilder<BaseJson>(
+                          //   future: fetchCovidList(http.Client()),
+                          //   builder: (context, snapshot) {
+                          //     if (snapshot.hasError) print(snapshot.error);
+                    
+                          //     print('Num ${snapshot.data}');
+                          //     return snapshot.hasData
+                          //         ? PhotosList(covids: snapshot.data)
+                          //         : CircularProgressIndicator();
+                          //   },
+                          // ),
+                    
+                          // floatingActionButton: FloatingActionButton(onPressed: () {
+                          //   setState(() {
+                              
+                          //   });
+                          // },),
+                        ),
                           );
                       }
-                      }
-                      ,)
-                      : CircularProgressIndicator();
-                },
-              ),
-        
-        
-        
-        
-        
-              // bottomNavigationBar: FutureBuilder<BaseJson>(
-              //   future: fetchCovidList(http.Client()),
-              //   builder: (context, snapshot) {
-              //     if (snapshot.hasError) print(snapshot.error);
-        
-              //     print('Num ${snapshot.data}');
-              //     return snapshot.hasData
-              //         ? PhotosList(covids: snapshot.data)
-              //         : CircularProgressIndicator();
-              //   },
-              // ),
-        
-              // floatingActionButton: FloatingActionButton(onPressed: () {
-              //   setState(() {
-                  
-              //   });
-              // },),
-            ),
-              );
-          }
-        
-  //         Future<bool> _onBackPressed()async {
-
-  //           // bool goback;
-  //           var value = await webView.canGoBack();
-  //           print('the val is $value');
-  //           if(value){
-  //             webView.goBack();
-  //             return value;
-  //           }else{
-  //             Navigator.of(context).pop(true);
-  //             return value;
-  //           }
-  // }
+                    
+              //         Future<bool> _onBackPressed()async {
+            
+              //           // bool goback;
+              //           var value = await webView.canGoBack();
+              //           print('the val is $value');
+              //           if(value){
+              //             webView.goBack();
+              //             return value;
+              //           }else{
+              //             Navigator.of(context).pop(true);
+              //             return value;
+              //           }
+              // }
+            }
+            
+            class ImageDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        // width: 200,
+        // height: 200,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: ExactAssetImage('assets/images/splash.png'),
+            fit: BoxFit.cover
+          )
+        ),
+      ),
+    );
+  }
 }
-
 
 Widget dialogContent(dynamic snapData) {
    
