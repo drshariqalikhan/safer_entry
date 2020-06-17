@@ -91,7 +91,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-final Completer<WebViewController> _controller = Completer<WebViewController>();  
+// final Completer<WebViewController> _controller = Completer<WebViewController>();  
+WebViewController webView;
+final Completer<WebViewController> _controller = Completer<WebViewController>();
 
 Future <String> scanQR()async{
  
@@ -118,86 +120,118 @@ bool showButton = true;
           
         });}),
       ),
-      body: Container(
-        child: FutureBuilder<String>(
-          future:scanQR(),
-          builder: (ctx,snapsh){
-            if (snapsh.hasError) print(snapsh.error);
-
-            // return snapsh.hasData?Container(
-            //   child: Text(snapsh.data),
-            // ):FlatButton(child: Text('data'),onPressed: () {
-            //   setState(() {
-                
-            //   });
-            // },);
-
-            
-            // if(snapsh.data.startsWith('http')){showButton = false;}else{showButton = true;}
-
-            return snapsh.hasData?Container(
-              child:(snapsh.data.startsWith('http'))?WebView(
-                initialUrl: '${snapsh.data}',
-                javascriptMode: JavascriptMode.unrestricted ,
-                onWebViewCreated: (WebViewController webViewController) {
-            _controller.complete(webViewController);} ,
-              ):Center(child: Text('Failed to scan')),
-                )
-              :CircularProgressIndicator();
-
-          }
-        )
-      ),
-    
-      bottomNavigationBar: FutureBuilder(
-        future: covidScanner(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-
-          // print('Pos: ${snapshot.data['Statment']}');
-          return snapshot.hasData
-              ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
-                if (snapshot.data['NearbyHotPlaces'].length > 0){
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                    return AlertDialog(
-                        title: Text('Nearby Places recently visited by covid cases'),
-                        content: dialogContent(snapshot.data),
-                    );
+      body: WillPopScope(
+        onWillPop: ()async{ return false;},
+                child: Container(
+                  child: FutureBuilder<String>(
+                    future:scanQR(),
+                    builder: (ctx,snapsh){
+                      if (snapsh.hasError) print(snapsh.error);
+        
+                      
+        
+                      return snapsh.hasData?Container(
+                        child:(snapsh.data.startsWith('http'))?WebView(
+                          initialUrl: '${snapsh.data}',
+                          javascriptMode: JavascriptMode.unrestricted ,
+                          onWebViewCreated: (WebViewController webViewController) {
+                      _controller.complete(webViewController);} ,
+                        ):Center(child: Text('Failed to scan')),
+                          )
+                        :CircularProgressIndicator();
+        
                     }
-                  );
-              }
-              }
-              ,)
-              : CircularProgressIndicator();
-        },
-      ),
-
-
-
-
-
-      // bottomNavigationBar: FutureBuilder<BaseJson>(
-      //   future: fetchCovidList(http.Client()),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasError) print(snapshot.error);
-
-      //     print('Num ${snapshot.data}');
-      //     return snapshot.hasData
-      //         ? PhotosList(covids: snapshot.data)
-      //         : CircularProgressIndicator();
-      //   },
-      // ),
-
-      // floatingActionButton: FloatingActionButton(onPressed: () {
-      //   setState(() {
+                 )
+                ),
+              ),
           
-      //   });
-      // },),
-    ),
-      );
-  }
+        
+        
+              // body: Container(
+              //   child: FutureBuilder<String>(
+              //     future:scanQR(),
+              //     builder: (ctx,snapsh){
+              //       if (snapsh.hasError) print(snapsh.error);
+        
+                    
+        
+              //       return snapsh.hasData?Container(
+              //         child:(snapsh.data.startsWith('http'))?WebView(
+              //           initialUrl: '${snapsh.data}',
+              //           javascriptMode: JavascriptMode.unrestricted ,
+              //           onWebViewCreated: (WebViewController webViewController) {
+              //       _controller.complete(webViewController);} ,
+              //         ):Center(child: Text('Failed to scan')),
+              //           )
+              //         :CircularProgressIndicator();
+        
+              //     }
+              //   )
+              // ),
+            
+              bottomNavigationBar: FutureBuilder(
+                future: covidScanner(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) print(snapshot.error);
+        
+                  // print('Pos: ${snapshot.data['Statment']}');
+                  return snapshot.hasData
+                      ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
+                        if (snapshot.data['NearbyHotPlaces'].length > 0){
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                            return AlertDialog(
+                                title: Text('Nearby Places recently visited by covid cases'),
+                                content: dialogContent(snapshot.data),
+                            );
+                            }
+                          );
+                      }
+                      }
+                      ,)
+                      : CircularProgressIndicator();
+                },
+              ),
+        
+        
+        
+        
+        
+              // bottomNavigationBar: FutureBuilder<BaseJson>(
+              //   future: fetchCovidList(http.Client()),
+              //   builder: (context, snapshot) {
+              //     if (snapshot.hasError) print(snapshot.error);
+        
+              //     print('Num ${snapshot.data}');
+              //     return snapshot.hasData
+              //         ? PhotosList(covids: snapshot.data)
+              //         : CircularProgressIndicator();
+              //   },
+              // ),
+        
+              // floatingActionButton: FloatingActionButton(onPressed: () {
+              //   setState(() {
+                  
+              //   });
+              // },),
+            ),
+              );
+          }
+        
+  //         Future<bool> _onBackPressed()async {
+
+  //           // bool goback;
+  //           var value = await webView.canGoBack();
+  //           print('the val is $value');
+  //           if(value){
+  //             webView.goBack();
+  //             return value;
+  //           }else{
+  //             Navigator.of(context).pop(true);
+  //             return value;
+  //           }
+  // }
 }
 
 
