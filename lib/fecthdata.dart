@@ -119,9 +119,9 @@ Future covidScanner()async{
 
     // statement
     if(nearCovidPlacesList.length>0){
-      finalStatement = 'ALERT: You are in a Covid Risk Area , ${nearCovidPlacesList.length} nearby covid location(s)';
+      finalStatement = 'High Covid Risk Area';
     }else{
-      finalStatement = 'Low Covid Risk Area ${nearCovidPlacesList.length}';
+      finalStatement = 'Low Covid Risk Area';
     }  
         
     // finalStatement;  

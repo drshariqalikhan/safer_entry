@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:location_permissions/location_permissions.dart';
 import 'package:safer_entry/main.dart';
 import 'package:safer_entry/urls.dart';
 import 'fecthdata.dart';
@@ -42,6 +43,7 @@ class TncWidget extends StatelessWidget {
     return Scaffold(
           body: Center(
         child: Container(
+          color: Colors.black87,
           child: Column(
             children:[
               Container(child: Image.asset('assets/images/icon.png')),
@@ -58,7 +60,9 @@ class TncWidget extends StatelessWidget {
                 child:Column(children:[ 
                   Text('By clicking on agree , you accept the above terms and conditions of use.'),
                   RaisedButton(child: Text('I Agree'),onPressed: ()async
-                  { //setSPF
+                  { 
+                    PermissionStatus permission = await LocationPermissions().requestPermissions();
+                    //setSPF
                     var res = await addTNCToSF(true);
                     Navigator.of(context).push(
         

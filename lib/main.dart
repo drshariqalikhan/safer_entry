@@ -75,6 +75,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+Color alertColor = Colors.black;
 
 WebViewController webView;
 final Completer<WebViewController> _controller = Completer<WebViewController>();
@@ -128,10 +129,33 @@ bool showButton = true;
               showDialog(
                 context: context,
                 builder:(BuildContext context){
-                  return AlertDialog(
-                    content: SingleChildScrollView (scrollDirection: Axis.vertical,child:TncWidget()),
-
-                  );
+                 return AlertDialog(
+            contentPadding: EdgeInsets.only(left: 25, right: 25),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Container(
+              height: 500,
+              width: 300,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                     Container(child: Image.asset('assets/images/icon.png')),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('DISCLAIMER',style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: RichText(text:TextSpan(text:tnc,style: TextStyle(fontSize: 15.0,fontWeight:FontWeight.bold)),textAlign: TextAlign.justify,),
+                // child: Text(tnc),
+              ),
+                    
+                  ],
+                ),
+              ),
+            )
+            );
                 }
                 );
 
@@ -144,13 +168,7 @@ bool showButton = true;
         
         ),
       
-        // flexibleSpace: CircleAvatar(
-        //   child:GestureDetector(child: Image.asset('assets/images/icon.png'),
-        //   onTap:()async{
-        //   await showDialog(context: context,builder: (_)=>ImageDialog()
-        //                 );
-        //             }),
-        //           ),
+        
         body: WillPopScope(
                     onWillPop: ()async{ return false;},
                             child: Container(
@@ -167,8 +185,11 @@ bool showButton = true;
                                       javascriptMode: JavascriptMode.unrestricted ,
                                       onWebViewCreated: (WebViewController webViewController) {
                                   _controller.complete(webViewController);} ,
-                                    ):Center(child: Text('Failed to scan')),
-                                      )
+                                    ):Center(child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Text(noScanMsg),
+                                    ),))
+                                      
                                     :CircularProgressIndicator();
                     
                                 }
@@ -183,10 +204,17 @@ bool showButton = true;
                             future: covidScanner(),
                             builder: (context, snapshot) {
                               if (snapshot.hasError) print(snapshot.error);
-                    
+
                               // print('Pos: ${snapshot.data['Statment']}');
+                              if(snapshot.hasData){
+                                if(snapshot.data['NearbyHotPlaces'].length>0){
+                                  alertColor = Colors.redAccent;
+                                }else{
+                                  alertColor = Colors.greenAccent;
+                                }
+                              }
                               return snapshot.hasData
-                                  ? FlatButton(child:Text(snapshot.data['Statment']),onPressed: (){
+                                  ? FlatButton(child:Text(snapshot.data['Statment'],style: TextStyle(color: Colors.black),),color: alertColor,onPressed: (){
                                     if (snapshot.data['NearbyHotPlaces'].length > 0){
                                       showDialog(
                                         context: context,
