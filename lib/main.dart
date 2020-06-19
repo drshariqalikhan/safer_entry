@@ -1,36 +1,26 @@
 import 'dart:async';
-import 'dart:convert';
+// import 'dart:js';
+// import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
-import 'package:safer_entry/testPage.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:safer_entry/testPage.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // import 'package:safer_entry/mtechQr.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-
+import 'urls.dart';
 import 'covidPlace.dart';
 import 'fecthdata.dart';
+import 'package:safer_entry/tnc.dart';
 
 
+bool showTnc;
 void main(){
-//   print('hi');
-
-
-//  await addCovidListToSF('tlc',testCovList);
-
-// //read
-//  List<CovidData> outlist = await getStoreCovidList('tlc'); 
-  
-//  print('out list : ${outlist.length}');
-  
-  // d = await fetchCovidList(http.Client());
-
   runApp(MyApp());
-  // print(d);
 }
 
 class MyApp extends StatelessWidget {
@@ -50,17 +40,12 @@ class MyApp extends StatelessWidget {
   //  var z  = d[0].lat;
     return MaterialApp(
       title: 'Flutter Demo',
-      // theme: ThemeData(
-        
-      //   primarySwatch: Colors.blue,
-        
-       
-      //   visualDensity: VisualDensity.adaptivePlatformDensity,
-      // ),
+      debugShowCheckedModeBanner: false,
+      
       theme: ThemeData.dark(),
-      home:MyHomePage(title:'test'),
+      home:Tnc(),
       // home:TestPage(),
-
+      // home:Tnc(),
 
       
     );
@@ -91,7 +76,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-// final Completer<WebViewController> _controller = Completer<WebViewController>();  
 WebViewController webView;
 final Completer<WebViewController> _controller = Completer<WebViewController>();
 
@@ -116,17 +100,58 @@ bool showButton = true;
     return   Container(
         child: Scaffold(
       appBar: AppBar( 
-        leading: IconButton(icon: Icon(Icons.autorenew),onPressed:(){setState(() {
+        leading:IconButton(icon: Icon(Icons.center_focus_strong),onPressed:(){setState(() {});}),
+
+        actions:<Widget>[
+          IconButton(icon: Icon(Icons.assignment),onPressed:()async{
+            
+            List<CovidData> allList;
+            try{
+            allList = await getStoreCovidList('latestCovidList');
+            }catch(e){}
+            showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+
+                           return (allList!=null)?AlertDialog(
+                                            title: Text('Nearby Places recently visited by covid cases'),
+                                            content: dialogAllContent(allList),
+                                        ):AlertDialog(
+                                          title: Text('loading....')
+                                          );             
+                                        }
+                                      );
           
-        });}),
-        flexibleSpace: IconButton(icon: Icon(Icons.info), onPressed: ()async{
-          await showDialog(
-            context: context,
-            builder: (_)=>ImageDialog()
-                        );
-                    }),
-                  ),
-                  body: WillPopScope(
+          }),//list
+          IconButton(icon: Icon(Icons.info_outline),onPressed:(){
+
+              showDialog(
+                context: context,
+                builder:(BuildContext context){
+                  return AlertDialog(
+                    content: SingleChildScrollView (scrollDirection: Axis.vertical,child:TncWidget()),
+
+                  );
+                }
+                );
+
+          }),//disclaimer
+        ],
+
+        
+        
+        
+        
+        ),
+      
+        // flexibleSpace: CircleAvatar(
+        //   child:GestureDetector(child: Image.asset('assets/images/icon.png'),
+        //   onTap:()async{
+        //   await showDialog(context: context,builder: (_)=>ImageDialog()
+        //                 );
+        //             }),
+        //           ),
+        body: WillPopScope(
                     onWillPop: ()async{ return false;},
                             child: Container(
                               child: FutureBuilder<String>(
@@ -137,7 +162,7 @@ bool showButton = true;
                                   
                     
                                   return snapsh.hasData?Container(
-                                    child:(snapsh.data.startsWith('http'))?WebView(
+                                    child:(snapsh.data.startsWith(safeEntryUrl))?WebView(
                                       initialUrl: '${snapsh.data}',
                                       javascriptMode: JavascriptMode.unrestricted ,
                                       onWebViewCreated: (WebViewController webViewController) {
@@ -153,27 +178,6 @@ bool showButton = true;
                       
                     
                     
-                          // body: Container(
-                          //   child: FutureBuilder<String>(
-                          //     future:scanQR(),
-                          //     builder: (ctx,snapsh){
-                          //       if (snapsh.hasError) print(snapsh.error);
-                    
-                                
-                    
-                          //       return snapsh.hasData?Container(
-                          //         child:(snapsh.data.startsWith('http'))?WebView(
-                          //           initialUrl: '${snapsh.data}',
-                          //           javascriptMode: JavascriptMode.unrestricted ,
-                          //           onWebViewCreated: (WebViewController webViewController) {
-                          //       _controller.complete(webViewController);} ,
-                          //         ):Center(child: Text('Failed to scan')),
-                          //           )
-                          //         :CircularProgressIndicator();
-                    
-                          //     }
-                          //   )
-                          // ),
                         
                           bottomNavigationBar: FutureBuilder(
                             future: covidScanner(),
@@ -204,43 +208,14 @@ bool showButton = true;
                     
                     
                     
-                          // bottomNavigationBar: FutureBuilder<BaseJson>(
-                          //   future: fetchCovidList(http.Client()),
-                          //   builder: (context, snapshot) {
-                          //     if (snapshot.hasError) print(snapshot.error);
-                    
-                          //     print('Num ${snapshot.data}');
-                          //     return snapshot.hasData
-                          //         ? PhotosList(covids: snapshot.data)
-                          //         : CircularProgressIndicator();
-                          //   },
-                          // ),
-                    
-                          // floatingActionButton: FloatingActionButton(onPressed: () {
-                          //   setState(() {
-                              
-                          //   });
-                          // },),
+                          
                         ),
                           );
                       }
                     
-              //         Future<bool> _onBackPressed()async {
-            
-              //           // bool goback;
-              //           var value = await webView.canGoBack();
-              //           print('the val is $value');
-              //           if(value){
-              //             webView.goBack();
-              //             return value;
-              //           }else{
-              //             Navigator.of(context).pop(true);
-              //             return value;
-              //           }
-              // }
             }
             
-            class ImageDialog extends StatelessWidget {
+class ImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -256,6 +231,26 @@ bool showButton = true;
       ),
     );
   }
+}
+
+Widget dialogAllContent(List<CovidData> placesList){
+  // List<CovidData> placesList= await getStoreCovidList('latestCovidList');
+
+   return (placesList==null)?Container():Container(
+     height: 300.0, // Change as per your requirement
+      width: 300.0, // Change as per your requirement
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: placesList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(placesList[index].place),
+            leading: Text(placesList[index].date)
+          );
+        },
+      ),
+
+  );
 }
 
 Widget dialogContent(dynamic snapData) {

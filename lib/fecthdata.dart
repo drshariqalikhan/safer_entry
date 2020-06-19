@@ -9,10 +9,11 @@ import 'covidPlace.dart';
 import 'package:flutter/foundation.dart';
 // import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'urls.dart';
 
 Future <BaseJson> fetchCovidList(http.Client client) async {
   final response =
-      await client.get('https://infinite-tor-43156.herokuapp.com/cov');
+      await client.get(apiUrl);
 
   // Use the compute function to run parsePhotos in a separate isolate.
   // print('${response.body} resp');
@@ -197,6 +198,26 @@ addUpdateTimeToSF(double value) async {
   double doubleValue = prefs.getDouble('latestUpdateTime');
 
   return doubleValue;
+}
+
+
+
+addTNCToSF(bool value) async {
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  prefs.setBool('TNC', value);
+
+}
+
+  
+  Future<bool> getStoredTNC()async {
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  bool value = prefs.getBool('TNC');
+
+  return value;
 }
 
 addCovidListToSF(String key,val)async{
