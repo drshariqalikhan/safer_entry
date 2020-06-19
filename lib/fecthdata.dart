@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -7,54 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'covidPlace.dart';
 import 'package:flutter/foundation.dart';
-// import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'urls.dart';
 
-Future <BaseJson> fetchCovidList(http.Client client) async {
-  final response =
-      await client.get(apiUrl);
-
-  // Use the compute function to run parsePhotos in a separate isolate.
-  // print('${response.body} resp');
-  
-  return compute(parseCovid, response.body);
-
-}
-
-// // A function that converts a response body into a List<CovidData>.
 
 
-
-  BaseJson parseCovid (String responseBody){
-  final parsed = BaseJson.fromJson(jsonDecode(responseBody));
-  // final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-  return  parsed;
-  // return parsed.map<CovidData>((json) => CovidData.fromJson(json)).toList();
-}
-
-
-// get current location
-Future <Position> getCurrentLocation()async{
-  Position res = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  return res;
-}
-
-// get distance between two Positions
-Future <double> distanceBetween({Position positionCurrent, Position positionTarget})async{
-  double currentLat= positionCurrent.latitude;
-  double currentLon=  positionCurrent.longitude;
-  double targetLat = positionTarget.latitude;
-  double targetLon = positionTarget.longitude;
-
-  double distanceInMeters = await Geolocator().distanceBetween(currentLat,currentLon, targetLat, targetLon);
-  return distanceInMeters;
-}
-
-
-
-Future covidScanner()async{
-  
+Future covidScanner() async {
   bool isDataCurrent;
   String finalStatement;
   List<CovidData> latestCovidList;
@@ -63,136 +20,156 @@ Future covidScanner()async{
   List<CovidData> nearCovidPlacesList;
   BaseJson apiData;
   List<double> distlist;
-  
-//Run Once
-  if(await getStoredUpdatedTime()==null){
-    //fetch new data
-      apiData = await fetchCovidList(http.Client());
-      latestCovidList = apiData.data;
-      latestUpdateTime = apiData.timeUpdated;
-  
-      //store latestCovidlist
-      await addCovidListToSF('latestCovidList', latestCovidList);
-      
-      //store latestUpdateTime 
-      await addUpdateTimeToSF(latestUpdateTime);
 
+//Run Once
+  if (await getStoredUpdatedTime() == null) {
+    //fetch new data
+    apiData = await fetchCovidList(http.Client());
+    latestCovidList = apiData.data;
+    latestUpdateTime = apiData.timeUpdated;
+
+    //store latestCovidlist
+    await addCovidListToSF('latestCovidList', latestCovidList);
+
+    //store latestUpdateTime
+    await addUpdateTimeToSF(latestUpdateTime);
   }
 
   //extract stored time from sharedrefs
   latestUpdateTime = await getStoredUpdatedTime();
 
-  
-  
-    // check IsDataCurrent
-    isDataCurrent = checkIsDataCurrent(latestUpdateTime);
-  
-    //if  isDataCurrent is false -> fetch new data
-    if (!isDataCurrent){
-      //fetch new data
-      apiData = await fetchCovidList(http.Client());
-      latestCovidList = apiData.data;
-      latestUpdateTime = apiData.timeUpdated;
-  
-      //store latestCovidlist
-      await addCovidListToSF('latestCovidList', latestCovidList);
-      
-      //store latestUpdateTime 
-      await addUpdateTimeToSF(latestUpdateTime);
-  
-  
-    }else{
-      //if isDataCurrent is true -> fetch stored data
-      latestCovidList = await getStoreCovidList('latestCovidList');
-      latestUpdateTime = await getStoredUpdatedTime();
-    }
-    
-    //get current location
-    currentPosition = await getCurrentLocation();
-    // currentPosition = Position(latitude:1.311474 ,longitude:103.856145 );
-  
-    //iterate through latestCovidList and make a nearCovidPlacesList
-    List out = await makeNearCovidPlacesList(currentPosition:currentPosition , latestCovidList:  latestCovidList);
-    
-     nearCovidPlacesList = out[0];
-     distlist = out[1];
+  // check IsDataCurrent
+  isDataCurrent = checkIsDataCurrent(latestUpdateTime);
 
-    // statement
-    if(nearCovidPlacesList.length>0){
-      finalStatement = 'High Covid Risk Area';
-    }else{
-      finalStatement = 'Low Covid Risk Area';
-    }  
-        
-    // finalStatement;  
-    return{
-      'NearbyHotPlaces':nearCovidPlacesList,
-      'Statment':finalStatement,
-      'distances':distlist
-      
-    };
-        
-     }
+  //if  isDataCurrent is false -> fetch new data
+  if (!isDataCurrent) {
+    //fetch new data
+    apiData = await fetchCovidList(http.Client());
+    latestCovidList = apiData.data;
+    latestUpdateTime = apiData.timeUpdated;
 
+    //store latestCovidlist
+    await addCovidListToSF('latestCovidList', latestCovidList);
 
-
-
-
-
-
-   Future makeNearCovidPlacesList({List<CovidData> latestCovidList, Position currentPosition})async{
-    List<CovidData> results=[];
-    List<double> covidist = [];
-    
-  for (CovidData covidplace in latestCovidList){
-    //   // position of place
-      Position targetpos = Position(longitude: covidplace.lon,latitude: covidplace.lat);
-      double distance = await distanceBetween(positionCurrent: currentPosition, positionTarget: targetpos);
-        //check and add
-      if(distance<1001){
-        print('adding..${covidplace.place}');
-        results.add(covidplace);
-        covidist.add(distance);
-      }
+    //store latestUpdateTime
+    await addUpdateTimeToSF(latestUpdateTime);
+  } else {
+    //if isDataCurrent is true -> fetch stored data
+    latestCovidList = await getStoreCovidList('latestCovidList');
+    latestUpdateTime = await getStoredUpdatedTime();
   }
-   return [results,covidist];
+
+  //get current location
+  currentPosition = await getCurrentLocation();
+  // currentPosition = Position(latitude:1.311474 ,longitude:103.856145 );
+
+  //iterate through latestCovidList and make a nearCovidPlacesList
+  List out = await makeNearCovidPlacesList(
+      currentPosition: currentPosition, latestCovidList: latestCovidList);
+
+  nearCovidPlacesList = out[0];
+  distlist = out[1];
+
+  // statement
+  if (nearCovidPlacesList.length > 0) {
+    finalStatement = 'High Covid Risk Area';
+  } else {
+    finalStatement = 'Low Covid Risk Area';
+  }
+
+  // finalStatement;
+  return {
+    'NearbyHotPlaces': nearCovidPlacesList,
+    'Statment': finalStatement,
+    'distances': distlist
+  };
 }
 
 
 
+///
+///HELPERS
+///
 
 
 
-  
+
+Future<BaseJson> fetchCovidList(http.Client client) async {
+  final response = await client.get(apiUrl);
+
+  return compute(parseCovid, response.body);
+}
+
+// // A function that converts a response body into a List<CovidData>.
+
+BaseJson parseCovid(String responseBody) {
+  final parsed = BaseJson.fromJson(jsonDecode(responseBody));
+  return parsed;
+}
+
+// get current location
+Future<Position> getCurrentLocation() async {
+  Position res = await Geolocator()
+      .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  return res;
+}
+
+// get distance between two Positions
+Future<double> distanceBetween(
+    {Position positionCurrent, Position positionTarget}) async {
+  double currentLat = positionCurrent.latitude;
+  double currentLon = positionCurrent.longitude;
+  double targetLat = positionTarget.latitude;
+  double targetLon = positionTarget.longitude;
+
+  double distanceInMeters = await Geolocator()
+      .distanceBetween(currentLat, currentLon, targetLat, targetLon);
+  return distanceInMeters;
+}
 
 
-  bool checkIsDataCurrent(double storedTime) {
 
-    bool res;
-    var currentTime = ((DateTime.now().toUtc()).millisecondsSinceEpoch)/1000;
+Future makeNearCovidPlacesList(
+    {List<CovidData> latestCovidList, Position currentPosition}) async {
+  List<CovidData> results = [];
+  List<double> covidist = [];
 
-    if(currentTime-storedTime>45000){
-      res = false;
-    }else{
-      res = true;
+  for (CovidData covidplace in latestCovidList) {
+    //   // position of place
+    Position targetpos =
+        Position(longitude: covidplace.lon, latitude: covidplace.lat);
+    double distance = await distanceBetween(
+        positionCurrent: currentPosition, positionTarget: targetpos);
+    //check and add
+    if (distance < 1001) {
+      print('adding..${covidplace.place}');
+      results.add(covidplace);
+      covidist.add(distance);
     }
+  }
+  return [results, covidist];
+}
 
+bool checkIsDataCurrent(double storedTime) {
+  bool res;
+  var currentTime = ((DateTime.now().toUtc()).millisecondsSinceEpoch) / 1000;
 
-    return res;
-} 
+  if (currentTime - storedTime > 45000) {
+    res = false;
+  } else {
+    res = true;
+  }
 
+  return res;
+}
 
 addUpdateTimeToSF(double value) async {
-
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   prefs.setDouble('latestUpdateTime', value);
-
 }
 
-  
-  Future<double> getStoredUpdatedTime()async {
-
+Future<double> getStoredUpdatedTime() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   double doubleValue = prefs.getDouble('latestUpdateTime');
@@ -200,19 +177,13 @@ addUpdateTimeToSF(double value) async {
   return doubleValue;
 }
 
-
-
 addTNCToSF(bool value) async {
-
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   prefs.setBool('TNC', value);
-
 }
 
-  
-  Future<bool> getStoredTNC()async {
-
+Future<bool> getStoredTNC() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   bool value = prefs.getBool('TNC');
@@ -220,21 +191,15 @@ addTNCToSF(bool value) async {
   return value;
 }
 
-addCovidListToSF(String key,val)async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var setString = prefs.setString(key, json.encode(val));
-
+addCovidListToSF(String key, val) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var setString = prefs.setString(key, json.encode(val));
 }
 
-
-  
-Future <List<CovidData>> getStoreCovidList(String key)async {
-
+Future<List<CovidData>> getStoreCovidList(String key) async {
   final prefs = await SharedPreferences.getInstance();
 
   Iterable l = json.decode(prefs.getString(key));
 
-
   return List<CovidData>.from(l.map((e) => CovidData.fromJson(e)));
-
 }
