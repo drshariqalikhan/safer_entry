@@ -1,4 +1,4 @@
-package com.example.safer_entry
+package com.speromedtech.safer_entry
 
 import io.flutter.embedding.android.FlutterActivity
 
