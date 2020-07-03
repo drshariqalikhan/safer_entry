@@ -81,7 +81,8 @@ Future covidScanner() async {
   return {
     'NearbyHotPlaces': nearCovidPlacesList,
     'Statment': finalStatement,
-    'distances': distlist
+    'distances': distlist,
+    'cl': currentPosition
   };
 }
 
@@ -122,6 +123,16 @@ Future<double> distanceBetween(
   double targetLat = positionTarget.latitude;
   double targetLon = positionTarget.longitude;
 
+  // try{
+    
+  // double distanceInMeters = await Geolocator()
+  //     .distanceBetween(currentLat, currentLon, targetLat, targetLon);
+  // return distanceInMeters;
+  // }catch(s){
+  //   return 1002;
+
+  // }
+
   double distanceInMeters = await Geolocator()
       .distanceBetween(currentLat, currentLon, targetLat, targetLon);
   return distanceInMeters;
@@ -133,13 +144,20 @@ Future makeNearCovidPlacesList(
     {List<CovidData> latestCovidList, Position currentPosition}) async {
   List<CovidData> results = [];
   List<double> covidist = [];
+  double distance = 1002;
 
   for (CovidData covidplace in latestCovidList) {
     //   // position of place
     Position targetpos =
         Position(longitude: covidplace.lon, latitude: covidplace.lat);
-    double distance = await distanceBetween(
+    
+    if(covidplace.lon!=null){
+      
+    distance = await distanceBetween(
         positionCurrent: currentPosition, positionTarget: targetpos);
+    }
+    // double distance = await distanceBetween(
+    //     positionCurrent: currentPosition, positionTarget: targetpos);
     //check and add
     if (distance < 1001) {
       print('adding..${covidplace.place}');

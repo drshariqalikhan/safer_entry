@@ -64,14 +64,31 @@ class _MyHomePageState extends State<MyHomePage> {
   bool showButton = true;
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       child: Scaffold(
         appBar: AppBar(
+      
+
           leading: IconButton(
-              icon: Icon(Icons.center_focus_strong),
-              onPressed: () {
-                setState(() {});
-              }),
+            icon: Icon(Icons.map),
+            onPressed: (){
+           
+                    
+                      showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return new RotatedBox(
+                              quarterTurns: 1,
+                              child: MapIt()
+                            );
+                       
+                      });     
+
+               
+             
+            },
+          ),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.assignment),
@@ -254,4 +271,39 @@ Widget dialogContent(dynamic snapData) {
       },
     ),
   );
+}
+
+
+
+
+//maps
+
+
+class MapIt extends StatefulWidget {
+  
+  @override
+  _MapItState createState() => _MapItState();
+}
+
+class _MapItState extends State<MapIt> {
+
+   
+  @override
+  Widget build(BuildContext context) {
+   
+    return
+        
+          Scaffold(
+            appBar: AppBar(title: Text('Places recently visited by Covid Patients')),
+                      body: WebView(
+            initialUrl: mapurl,
+            javascriptMode: JavascriptMode.unrestricted,
+      
+                                  ),
+          );
+        
+      
+    
+    
+  }
 }
