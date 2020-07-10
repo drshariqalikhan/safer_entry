@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
-
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:safer_entry/dateWidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
+import 'package:latlong/latlong.dart';
 import 'urls.dart';
 import 'covidPlace.dart';
 import 'fecthdata.dart';
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
 
       theme: ThemeData.dark(),
       home: Tnc(),
+      // home: CalPage(dateString: "5 Jul",),
     );
   }
 }
@@ -44,6 +47,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Position curPos;
+  List<CovidData> latestCovList;
+   
   Color alertColor = Colors.black;
 
   WebViewController webView;
@@ -73,14 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
           leading: IconButton(
             icon: Icon(Icons.map),
             onPressed: (){
-           
-                    
+                   
                       showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return new RotatedBox(
                               quarterTurns: 1,
-                              child: MapIt()
+                              child:(curPos!=null)?MapIt(currentLoc: curPos,covidDataList: latestCovList):Card(child:Center(child:Text('Loading Data...'))),
                             );
                        
                       });     
@@ -199,6 +204,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
             // print('Pos: ${snapshot.data['Statment']}');
             if (snapshot.hasData) {
+              curPos = snapshot.data['cl'];
+              latestCovList = snapshot.data['latestCovidList'];
+
               if (snapshot.data['NearbyHotPlaces'].length > 0) {
                 alertColor = Colors.redAccent;
               } else {
@@ -280,30 +288,71 @@ Widget dialogContent(dynamic snapData) {
 
 
 class MapIt extends StatefulWidget {
-  
+  MapIt({this.currentLoc,this.covidDataList});
+  final Position currentLoc;
+  final List<CovidData> covidDataList;
+
+ 
+
   @override
   _MapItState createState() => _MapItState();
 }
 
 class _MapItState extends State<MapIt> {
+// final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+String placeDetails='';
+String placeDate='';
 
-   
-  @override
+
   Widget build(BuildContext context) {
-   
-    return
-        
-          Scaffold(
-            appBar: AppBar(title: Text('Places recently visited by Covid Patients')),
-                      body: WebView(
-            initialUrl: mapurl,
-            javascriptMode: JavascriptMode.unrestricted,
-      
-                                  ),
-          );
-        
-      
-    
-    
-  }
+     List<Marker> markers=[Marker(
+       width: 80.0,
+        height: 80.0,
+         builder: (context)=>Container(
+           child: Icon(Icons.accessibility,color: Colors.black),
+         ),
+       point:LatLng(widget.currentLoc.latitude,widget.currentLoc.longitude))];
+    for(CovidData c in widget.covidDataList){
+      Marker m  = Marker(
+        width: 80.0,
+        height: 80.0,
+        point: LatLng(c.lat,c.lon),
+        builder: (context)=>
+        Container(
+
+          child: GestureDetector(
+            onTap: (){
+            setState(() {
+              placeDetails = c.place;
+              placeDate = c.date;
+            });
+              
+            },
+            child: Icon(Icons.location_on,color: Colors.red,)
+            
+            ),
+      )
+      );
+      markers.add(m);
+    }
+  return Scaffold(
+    // key:_scaffoldKey,
+    appBar: AppBar(leading:Center(child: Text(placeDate,style: TextStyle(fontSize: 20.0),)),title:SingleChildScrollView(scrollDirection: Axis.horizontal,child: Text(placeDetails))),
+    body: FlutterMap(
+      options: new MapOptions(
+        center: new LatLng(widget.currentLoc.latitude, widget.currentLoc.longitude),
+        zoom: 13.0,
+      ),
+      layers: [
+        new TileLayerOptions(
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c']
+        ),
+        new MarkerLayerOptions(
+          markers: markers,
+        ),
+      ],
+    ),
+  );
+}
 }

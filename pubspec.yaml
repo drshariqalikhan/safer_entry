@@ -37,6 +37,7 @@ dependencies:
   barcode_scan: ^1.0.0
   after_layout: ^1.0.7+2
   location_permissions: ^3.0.0+1
+  flutter_map: ^0.10.1
  
     
 dev_dependencies:

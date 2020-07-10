@@ -25,7 +25,8 @@ Future covidScanner() async {
   if (await getStoredUpdatedTime() == null) {
     //fetch new data
     apiData = await fetchCovidList(http.Client());
-    latestCovidList = apiData.data;
+    // latestCovidList = apiData.data;
+    latestCovidList = await addLatLonToCovidData(apiData.data);
     latestUpdateTime = apiData.timeUpdated;
 
     //store latestCovidlist
@@ -45,7 +46,8 @@ Future covidScanner() async {
   if (!isDataCurrent) {
     //fetch new data
     apiData = await fetchCovidList(http.Client());
-    latestCovidList = apiData.data;
+    // latestCovidList = apiData.data;
+    latestCovidList = await addLatLonToCovidData(apiData.data);
     latestUpdateTime = apiData.timeUpdated;
 
     //store latestCovidlist
@@ -58,7 +60,8 @@ Future covidScanner() async {
     latestCovidList = await getStoreCovidList('latestCovidList');
     latestUpdateTime = await getStoredUpdatedTime();
   }
-
+  //test 
+  // print(latestCovidList);
   //get current location
   currentPosition = await getCurrentLocation();
   // currentPosition = Position(latitude:1.311474 ,longitude:103.856145 );
@@ -82,7 +85,9 @@ Future covidScanner() async {
     'NearbyHotPlaces': nearCovidPlacesList,
     'Statment': finalStatement,
     'distances': distlist,
-    'cl': currentPosition
+    'cl': currentPosition,
+    'latestCovidList' :latestCovidList,
+    
   };
 }
 
@@ -220,4 +225,28 @@ Future<List<CovidData>> getStoreCovidList(String key) async {
   Iterable l = json.decode(prefs.getString(key));
 
   return List<CovidData>.from(l.map((e) => CovidData.fromJson(e)));
+}
+
+Future<List<Placemark>> getLatLonFrom(String address)async{
+  //get string from ( )
+  String fineAddress = '';
+  try{
+    fineAddress = address.substring(address.indexOf('(') + 1, address.indexOf(')'));
+  }catch(e){
+    fineAddress = '';
+  }
+  List<Placemark> placemark = await Geolocator().placemarkFromAddress('$fineAddress,Singapore');
+  return placemark;
+}
+
+Future<List<CovidData>> addLatLonToCovidData(List<CovidData> rawCovidDataList)async{
+  List<CovidData> outlist = [];
+  for (CovidData covidData in rawCovidDataList){
+    List<Placemark> pos = await getLatLonFrom(covidData.place.toString()); 
+    covidData.lat = pos[0].position.latitude;
+    covidData.lon = pos[0].position.longitude;
+    outlist.add(covidData);
+  }
+
+  return outlist;
 }
